@@ -1,0 +1,36 @@
+#!/usr/bin/expect -f
+# Start Axigen
+spawn /etc/init.d/axigen start
+expect eof
+sleep 3
+# Login CLI
+spawn telnet 127.0.0.1 7000
+expect "<login>"
+send "user admin\r"
+expect "<password>"
+send "password\r"
+expect "<#>"
+# Create millervein.com domain
+send "CREATE domain name millervein.com domainLocation /var/opt/axigen/domains/millervein.com postmasterPassword password\r"
+expect "<domain-create#>"
+send "SET groupwareSupport yes\r"
+expect "<domain-create#>"
+send "ADD MessagesLocation /var/opt/axigen/domains/millervein.com/messages\r"
+expect "<domain-create#>"
+send "COMMIT\r"
+expect "<#>"
+# Update millervein.com settings
+send "UPDATE domain name millervein.com\r"
+expect "<domain#>"
+# LDAP
+send "SET ldapSyncConnectorName millerveinLdap\r"
+expect "<domain#>"
+send "SET enableLDAPSync yes\r"
+expect "<domain#>"
+send "COMMIT\r"
+expect "<#>"
+send "exit\r"
+expect eof
+# Stop Axigen
+spawn /etc/init.d/axigen stop
+expect eof
